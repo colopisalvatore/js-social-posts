@@ -19,7 +19,7 @@ const posts = [
             "image": "https://unsplash.it/300/300?image=10"
         },
         "likes": 120,
-        "created": "2021-09-03"
+        "created": "2018-09-03"
     },
     {
         "id": 3,
@@ -41,7 +41,7 @@ const posts = [
             "image": null
         },
         "likes": 56,
-        "created": "2021-04-03"
+        "created": "2021-01-03"
     },
     {
         "id": 5,
@@ -53,5 +53,199 @@ const posts = [
         },
         "likes": 95,
         "created": "2021-03-05"
+    },
+    {
+        "id": 6,
+        "content": "Placeat libero ipsa nobis ipsum quibusdam quas harum ut. Distinctio minima iusto. Ad ad maiores et sint voluptate recusandae architecto. Et nihil ullam aut alias.",
+        "media": null,
+        "author": {
+            "name": "Mario Rossi",
+            "image": null
+        },
+        "likes": 118,
+        "created": "2021-12-21"
     }
 ];
+
+
+// ---- VARIABILI ----
+
+//Variabile postsContainer
+const postsContainer = document.getElementById("container");
+
+//Array contente ID dei post a cui è stato messo like
+let likedPostsIDs = [];
+
+
+// ---- FUNZIONI DA ESEGUIRE ----
+
+//Stampa i post
+postsPrinter();
+
+//Aggiunge funzionalità ai like button
+likeButtonsGen();
+
+//Fotmatta le date in formato US
+formatUSDateAll();
+
+//Formatta le date in formato IT
+formatITDateAll();
+
+
+// ---- FUNZIONI ----
+
+//Ritorna una stringa contenente l'HTML del post
+function postHTMLGen(post) {
+    //Crea post temporaneo e ne inizia a generale l'html
+    let tempPostHTML = `
+        <div class="post" id=post-${post.id}>
+            <div class="mb-4">
+                <div class="d-flex">
+                `;
+
+    //Se author ha propic la inserisce nel post, altrimenti mette le sue iniziali
+    if (post.author.image) {
+        tempPostHTML += `
+                    <div>
+                        <img class="profile-pic" src="${post.author.image}" alt="${post.author.name}">
+                    </div>
+                    `;
+    } else {
+        tempPostHTML += `
+                    <div class="post-meta-icon">
+                        <div class="profile-pic-default"><span>${noProPicFallback(post)}</span></div>
+                    </div>
+                    `;
+    }
+
+    //Inserisce nome autore e data del post
+    tempPostHTML += `
+                    <div class="flex-column justify-content-center ms-3">
+                        <div class="fw-bold">${post.author.name}</div>
+                        <div class="post-meta-time">${formatUSDateAll()}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">${post.content}</div>
+            `;
+
+    //Se il post ha immagini le inserisce
+    if (post.media) {
+        tempPostHTML += `
+        <div class="mb-4">
+                <img class="w-100" src="${post.media}" alt="">
+        </div>
+        `;
+    }
+
+    //Finisce HTML con like button e contatore like
+    tempPostHTML += `
+            <div class="post-footer">
+                <div class="d-flex justify-content-around align-items-center js-likes">
+                    <div class="likes-cta">
+                        <a class="like-button  js-like-button" href="#">
+                            <i class="like-button-icon fas fa-thumbs-up" aria-hidden="true"></i>
+                            <span class="like-button-label">Mi Piace</span>
+                        </a>
+                    </div>
+                    <div class="likes-counter">
+                        Piace a <b id="like-counter-1" class="js-likes-counter">${post.likes}</b> persone
+                    </div>
+                </div>
+            </div>
+        </div>
+   `;
+
+    return tempPostHTML;
+}
+
+//Ritorna iniziali primo nome autore e ultimo cognome
+function noProPicFallback(post) {
+    let nameArray = post.author.name.split(" ");
+    return nameArray[0][0] + nameArray[nameArray.length - 1][0];
+}
+
+//Stampa nel postsContainer i post
+function postsPrinter() {
+    for (let i = 0; i < posts.length; i++) {
+        postsContainer.innerHTML += postHTMLGen(posts[i]);
+    }
+}
+
+//Bottone per mettere like
+function likeButtonsGen() {
+    for (let i = 0; i < posts.length; i++) {
+
+        //Variabili ID post e bottone like
+        const postID = posts[i].id;
+        let likeButton = document.querySelector("#post-" + postID + " .like-button");
+
+        //Aggiunge EventListener per gestire i like
+        likeButton.addEventListener("click", function (e) {
+            //Previene href
+            e.preventDefault;
+
+            //Variabili likesCounter HTML e post selezionato
+            let likesCounter = document.querySelector("#post-" + postID + " .js-likes-counter");
+            let selectedPost = posts[i];
+
+            //Prima volta che si mette like
+            if (!likedPostsIDs.includes(postID)) {
+                //Aggiunge ID post ad array contenente tutti gli ID
+                likedPostsIDs.push(postID);
+
+                //Aggiunge classe che colora bottone di verde il bottone like
+                likeButton.classList.add("like-button--liked");
+
+                //Aumenta i like di 1 nell'oggetto e aggiorna il contatore sulla pagina
+                selectedPost.likes++;
+                likesCounter.innerHTML = selectedPost.likes;
+            }
+
+            //Secondo click - Si rimuove il like
+            else {
+                //Trova l'index dell'ID all'interno dell'Array contenente tutti gli ID
+                likedPostIndex = findIndexOf(postID, likedPostsIDs);
+
+                //Rimuove l'ID dall'array degli ID
+                likedPostsIDs.splice(likedPostIndex, 1);
+
+                //Rimuove classe che colora di verde il bottone like
+                likeButton.classList.remove("like-button--liked");
+
+                //Toglie un like nell'oggetto e aggiorna il contatore sulla pagina
+                selectedPost.likes--;
+                likesCounter.innerHTML = selectedPost.likes;
+            }
+        });
+    }
+}
+
+//Trova l'index di un valore all'interno di un array
+function findIndexOf(value, array) {
+    let index;
+    for (let i = 0; i < array.length; i++) {
+        if (array[i] == value) {
+            index = i;
+        }
+    }
+    return index;
+}
+
+//Formatta le date di tutti i post in formato Americano
+function formatUSDateAll() {
+    for (let i = 0; i < posts.length; i++) {
+        let dateArray = posts[i].created.split("-");
+        let newDate = dateArray[1] + "-" + dateArray[2] + "-" + dateArray[0];
+        posts[i].created = newDate;
+    }
+}
+
+//Formatta le date di tutti i post in formato italiano
+function formatITDateAll() {
+    for (let i = 0; i < posts.length; i++) {
+        let dateArray = posts[i].created.split("-");
+        let newDate = dateArray[2] + "-" + dateArray[1] + "-" + dateArray[0];
+        posts[i].created = newDate;
+    }
+}
