@@ -85,8 +85,9 @@ postsPrinter();
 //Aggiunge funzionalità ai like button
 likeButtonsGen();
 
-//Fotmatta le date in formato US
+//Formatta le date in formato US
 formatUSDateAll();
+
 
 //Formatta le date in formato IT
 formatITDateAll();
@@ -181,7 +182,7 @@ function likeButtonsGen() {
         let likeButton = document.querySelector("#post-" + postID + " .like-button");
 
         //Aggiunge EventListener per gestire i like
-        likeButton.addEventListener("click", function (e) {
+        likeButton.addEventListener("click", function(e) {
             //Previene href
             e.preventDefault;
 
@@ -247,5 +248,7 @@ function formatITDateAll() {
         let dateArray = posts[i].created.split("-");
         let newDate = dateArray[2] + "-" + dateArray[1] + "-" + dateArray[0];
         posts[i].created = newDate;
+        console.log('posts[i].created', posts[i].created)
+        
     }
 }
